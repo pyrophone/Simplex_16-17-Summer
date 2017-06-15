@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+# Visual Studio 14
+VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BasicX", "BasicX\BasicX.vcxproj", "{E745E25C-0143-42AC-A486-1395A4C972AE}"
 EndProject
@@ -60,6 +60,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "13_Translation and Scale", "13_Translation and Scale\13_Translation and Scale.vcxproj", "{F8D2226D-0FEB-4B92-9F76-59DBB6936F5C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "14_LERP", "14_LERP\14_LERP.vcxproj", "{0F3ED9B5-5767-4A16-A2B7-AA328F911889}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ICEs", "ICEs", "{ED848843-409B-46C6-83A7-C530C409D1B1}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "E03Repository", "E03_Repository\E03Repository.vcxproj", "{468AAED1-D3FA-43B8-B727-908B44E9A96F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +133,10 @@ Global
 		{0F3ED9B5-5767-4A16-A2B7-AA328F911889}.Debug|x86.Build.0 = Debug|Win32
 		{0F3ED9B5-5767-4A16-A2B7-AA328F911889}.Release|x86.ActiveCfg = Release|Win32
 		{0F3ED9B5-5767-4A16-A2B7-AA328F911889}.Release|x86.Build.0 = Release|Win32
+		{468AAED1-D3FA-43B8-B727-908B44E9A96F}.Debug|x86.ActiveCfg = Debug|Win32
+		{468AAED1-D3FA-43B8-B727-908B44E9A96F}.Debug|x86.Build.0 = Debug|Win32
+		{468AAED1-D3FA-43B8-B727-908B44E9A96F}.Release|x86.ActiveCfg = Release|Win32
+		{468AAED1-D3FA-43B8-B727-908B44E9A96F}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,5 +161,6 @@ Global
 		{7EDBEED8-75ED-48EE-9F13-5D4A895E8F1B} = {5D1FB011-A2D8-4107-890B-BF1ACD0C0994}
 		{F8D2226D-0FEB-4B92-9F76-59DBB6936F5C} = {E0A09DA7-AF20-49C2-84DC-481ADDD01DCA}
 		{0F3ED9B5-5767-4A16-A2B7-AA328F911889} = {E0A09DA7-AF20-49C2-84DC-481ADDD01DCA}
+		{468AAED1-D3FA-43B8-B727-908B44E9A96F} = {ED848843-409B-46C6-83A7-C530C409D1B1}
 	EndGlobalSection
 EndGlobal
