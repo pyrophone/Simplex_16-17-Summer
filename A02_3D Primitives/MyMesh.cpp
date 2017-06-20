@@ -273,7 +273,38 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	vector3 height(0, a_fHeight, 0); //Vector for the height
+	
+	//Temp Vectors to hold the points
+	vector3 p1;
+	vector3 p2;
+
+	//Determines the basic angle that should be used for the cos and sin
+	float rInc = 360.0f / a_nSubdivisions;
+
+	//Loop for the amount of subdivisions
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//For everything but the last number
+		if (i < a_nSubdivisions - 1)
+		{
+			//Determine p1 and p2, add the sides
+			p1 = vector3(a_fRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fRadius * sin(glm::radians(rInc * i)));
+			p2 = vector3(a_fRadius * cos(glm::radians(rInc * (i + 1))), -a_fHeight, a_fRadius * sin(glm::radians(rInc * (i + 1))));
+			AddTri(p1, height, p2); //Side Face
+			AddTri(-height, p1, p2); //Base Face
+		}
+
+		//Last num is a special case
+		else
+		{
+			//p2 is zero here, otherwise the mesh is off
+			p1 = vector3(a_fRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fRadius * sin(glm::radians(rInc * i)));
+			p2 = vector3(a_fRadius * cos(0), -a_fHeight, a_fRadius * sin(0));
+			AddTri(p1, height, p2); //Side Face
+			AddTri(-height, p1, p2); //Base Face
+		}
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -297,7 +328,46 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	vector3 height(0, a_fHeight, 0);  //Vector for the height
+
+	//Temp Vectors to hold the points
+	vector3 p1;
+	vector3 p2;
+	vector3 p3;
+	vector3 p4;
+
+	//Determines the basic angle that should be used for the cos and sin
+	float rInc = 360.0f / a_nSubdivisions;
+
+	//Loop for the amount of subdivisions
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//For everything but the last number
+		if (i < a_nSubdivisions - 1)
+		{
+			//Determine p1, p2, p3, and p4, and add the sides
+			p1 = vector3(a_fRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fRadius * sin(glm::radians(rInc * i)));
+			p2 = vector3(a_fRadius * cos(glm::radians(rInc * (i + 1))), a_fHeight, a_fRadius * sin(glm::radians(rInc * (i + 1))));
+			p3 = vector3(a_fRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fRadius * sin(glm::radians(rInc * i)));
+			p4 = vector3(a_fRadius * cos(glm::radians(rInc * (i + 1))), -a_fHeight, a_fRadius * sin(glm::radians(rInc * (i + 1))));
+			AddTri(p1, height, p2); //Top Face
+			AddQuad(p1, p2, p3, p4); //Side Face
+			AddTri(-height, p3, p4); //Bottom Face
+		}
+
+		//Last num is a special case
+		else
+		{
+			//p2 and p4 are zero here, for the same reason as before
+			p1 = vector3(a_fRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fRadius * sin(glm::radians(rInc * i)));
+			p2 = vector3(a_fRadius * cos(0), a_fHeight, a_fRadius * sin(0));
+			p3 = vector3(a_fRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fRadius * sin(glm::radians(rInc * i)));
+			p4 = vector3(a_fRadius * cos(0), -a_fHeight, a_fRadius * sin(0));
+			AddTri(p1, height, p2); //Top Face
+			AddQuad(p1, p2, p3, p4); //Side Face
+			AddTri(-height, p3, p4); //Bottom Face
+		}
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -327,7 +397,65 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	vector3 height(0, a_fHeight, 0);
+
+	//Outer Point Temp Vecs
+	vector3 oP1;
+	vector3 oP2;
+	vector3 oP3;
+	vector3 oP4;
+
+	//Inner Point Temp Vecs
+	vector3 iP1;
+	vector3 iP2;
+	vector3 iP3;
+	vector3 iP4;
+
+	float rInc = 360.0f / a_nSubdivisions;
+
+	//Loop for the amount of subdivisions
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//For everything but the last number
+		if (i < a_nSubdivisions - 1)
+		{
+			//Determine each of the points, and add the sides
+			oP1 = vector3(a_fOuterRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * i)));
+			oP2 = vector3(a_fOuterRadius * cos(glm::radians(rInc * (i + 1))), a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * (i + 1))));
+			oP3 = vector3(a_fOuterRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * i)));
+			oP4 = vector3(a_fOuterRadius * cos(glm::radians(rInc * (i + 1))), -a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * (i + 1))));
+
+			iP1 = vector3(a_fInnerRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fInnerRadius* sin(glm::radians(rInc * i)));
+			iP2 = vector3(a_fInnerRadius* cos(glm::radians(rInc * (i + 1))), a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * (i + 1))));
+			iP3 = vector3(a_fInnerRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * i)));
+			iP4 = vector3(a_fInnerRadius * cos(glm::radians(rInc * (i + 1))), -a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * (i + 1))));
+
+			AddQuad(iP1, iP2, oP1, oP2); //Top Face
+			AddQuad(oP1, oP2, oP3, oP4); //Outside Face
+			AddQuad(oP3, oP4, iP3, iP4); //Bottom Face
+			AddQuad(iP3, iP4, iP1, iP2); //Inside Face
+		}
+
+		//Last num is a special case
+		else
+		{
+			//iP2, iP4, oP2, and oP4 are zero here, for the same reasons as before
+			oP1 = vector3(a_fOuterRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * i)));
+			oP2 = vector3(a_fOuterRadius * cos(0), a_fHeight, a_fOuterRadius * sin(0));
+			oP3 = vector3(a_fOuterRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * i)));
+			oP4 = vector3(a_fOuterRadius * cos(0), -a_fHeight, a_fOuterRadius * sin(0));
+
+			iP1 = vector3(a_fInnerRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fInnerRadius* sin(glm::radians(rInc * i)));
+			iP2 = vector3(a_fInnerRadius * cos(0), a_fHeight, a_fInnerRadius * sin(0));
+			iP3 = vector3(a_fInnerRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * i)));
+			iP4 = vector3(a_fInnerRadius * cos(0), -a_fHeight, a_fInnerRadius * sin(0));
+
+			AddQuad(iP1, iP2, oP1, oP2); //Top Face
+			AddQuad(oP1, oP2, oP3, oP4); //Outside Face
+			AddQuad(oP3, oP4, iP3, iP4); //Bottom Face
+			AddQuad(iP3, iP4, iP1, iP2); //Inside Face
+		}
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -359,7 +487,39 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	vector3 p; //Temporary vector
+	std::vector<vector3> points; //std::vector of the points
+
+	const GLfloat twoPi = 2.0f * glm::pi<GLfloat>(); //Just two pi...
+
+	//Loop for the amount of subdivisions A
+	for (GLint i = 0; i < a_nSubdivisionsA; i++)
+	{
+		//Loop for the amount of subivision B
+		for (GLint j = 0; j <= a_nSubdivisionsB; j++)
+		{
+			for (GLint k = 0; k <= 1; k++)
+			{
+				//Get a and b for the calculation
+				GLfloat a = (i + k) % a_nSubdivisionsA + 0.5f;
+				GLfloat b = (GLfloat)(j % a_nSubdivisionsB);
+
+				//Determine the point and push it onto the vector
+				p = vector3((a_fOuterRadius + a_fInnerRadius * cos(a * twoPi / a_nSubdivisionsA)) * cos(b * twoPi / a_nSubdivisionsB),
+							 a_fInnerRadius * sin(a * twoPi / a_nSubdivisionsA),
+							 (a_fOuterRadius + a_fInnerRadius * cos(a * twoPi / a_nSubdivisionsA)) * sin(b * twoPi / a_nSubdivisionsB));
+
+				points.push_back(p);
+			}
+		}
+	}
+
+	//Loop for the amount of points in point vector minus two, and increase by twos
+	for (GLuint i = 0; i < points.size() - 2; i += 2)
+	{
+		AddQuad(points[i], points[i + 1], points[i + 2], points[i + 3]);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -384,7 +544,100 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//Hold values used in initalizing icosahedron
+	GLfloat t;
+	GLfloat y;
+
+	//Special case for the radius being one
+	if (a_fRadius == 1)
+	{
+		t = sin(a_fRadius);
+		y = cos(a_fRadius);
+	}
+
+	//Everything else should work with this
+	else
+	{
+		t = cos(a_fRadius);
+		y = sin(a_fRadius);
+	}
+
+	//Inital points
+	std::vector<vector3> points = { glm::normalize(vector3(-y,  t,  0.0)),
+									glm::normalize(vector3( y,  t,  0.0)),
+									glm::normalize(vector3(-y, -t,  0.0)),
+									glm::normalize(vector3( y, -t,  0.0)),
+																		 
+									glm::normalize(vector3(0.0, -y,  t)),
+									glm::normalize(vector3(0.0,  y,  t)),
+									glm::normalize(vector3(0.0, -y, -t)),
+									glm::normalize(vector3(0.0,  y, -t)),
+																		 
+									glm::normalize(vector3( t,  0.0, -y)),
+									glm::normalize(vector3( t,  0.0,  y)),
+									glm::normalize(vector3(-t,  0.0, -y)),
+									glm::normalize(vector3(-t,  0.0,  y)) };
+
+	//initial indicies
+	std::vector<GLint> indicies = {  0, 11,  5,  0,  5,  1,  0,  1,  7,  0,  7, 10,  0, 10, 11,
+									 1,  5,  9,  5, 11,  4, 11, 10,  2, 10,  7,  6,  7,  1,  8,
+									 3,  9,  4,  3,  4,  2,  3,  2,  6,  3,  6,  8,  3,  8,  9,
+									 4,  9,  5,  2,  4, 11,  6,  2, 10,  8,  6,  7,  9,  8,  1 };
+
+	//Temp Vector for midpoints
+	vector3 t12; 
+	vector3 t23;
+	vector3 t31;
+	
+	//Loop for the amount of subdivisions
+	for (GLint i = 0; i < a_nSubdivisions; i++)
+	{
+		std::vector<GLint> newIndicies; //Holds the new indicies
+
+		//Loop for the amount of indicies but increase by 3 since 3 indicies are used for 1 tri
+		for (GLuint j = 0; j <  indicies.size(); j += 3)
+		{
+			//Get the midpoints between each of the three vectors that make up
+			t12 = (points[indicies[j]] + points[indicies[j + 1]]) / 2.0f;
+			t23 = (points[indicies[j + 1]] + points[indicies[j + 2]]) / 2.0f;
+			t31 = (points[indicies[j + 2]] + points[indicies[j]]) / 2.0f;
+
+			//Normalize the midpoints
+			t12 = glm::normalize(t12);
+			t23 = glm::normalize(t23);
+			t31 = glm::normalize(t31);
+
+			//Add the midpoints to the list of points
+			points.push_back(t12); //Size - 3
+			points.push_back(t23); //Size - 2
+			points.push_back(t31); //Size - 1
+
+			//Push back the new indicies for the triangles
+			newIndicies.push_back(indicies[j]);
+			newIndicies.push_back(points.size() - 3);
+			newIndicies.push_back(points.size() - 1);
+			
+			newIndicies.push_back(indicies[j + 1]);
+			newIndicies.push_back(points.size() - 2);
+			newIndicies.push_back(points.size() - 3);
+			
+			newIndicies.push_back(indicies[j + 2]);
+			newIndicies.push_back(points.size() - 1);
+			newIndicies.push_back(points.size() - 2);
+
+			newIndicies.push_back(points.size() - 3);
+			newIndicies.push_back(points.size() - 2);
+			newIndicies.push_back(points.size() - 1);
+		}
+		indicies = newIndicies; //Set the indicies to the new indicies
+	}
+
+	//Add the triangles
+	for (GLuint i = 0; i < indicies.size(); i += 3)
+	{
+		AddTri(points[indicies[i]], points[indicies[i + 1]], points[indicies[i + 2]]);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
