@@ -426,7 +426,7 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 			oP4 = vector3(a_fOuterRadius * cos(glm::radians(rInc * (i + 1))), -a_fHeight, a_fOuterRadius * sin(glm::radians(rInc * (i + 1))));
 
 			iP1 = vector3(a_fInnerRadius * cos(glm::radians(rInc * i)), a_fHeight, a_fInnerRadius* sin(glm::radians(rInc * i)));
-			iP2 = vector3(a_fInnerRadius* cos(glm::radians(rInc * (i + 1))), a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * (i + 1))));
+			iP2 = vector3(a_fInnerRadius * cos(glm::radians(rInc * (i + 1))), a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * (i + 1))));
 			iP3 = vector3(a_fInnerRadius * cos(glm::radians(rInc * i)), -a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * i)));
 			iP4 = vector3(a_fInnerRadius * cos(glm::radians(rInc * (i + 1))), -a_fHeight, a_fInnerRadius * sin(glm::radians(rInc * (i + 1))));
 
