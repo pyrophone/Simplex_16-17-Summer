@@ -2,19 +2,6 @@
 ImGuiObject Application::gui;
 void Application::DrawGUI(void)
 {
-#pragma region Debugging Information
-	//Print info on the screen
-	uint nEmptyLines = 21;
-	for (uint i = 0; i < nEmptyLines; ++i)
-		m_pMeshMngr->PrintLine("");//Add a line on top
-	//m_pMeshMngr->Print("						");
-	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), C_YELLOW);
-	
-	//m_pMeshMngr->Print("						");
-	m_pMeshMngr->Print("FPS:");
-	m_pMeshMngr->Print(std::to_string(m_pSystem->GetFPS()), C_RED);
-#pragma endregion
-
 	//Calculate the window size to know how to draw
 	NewFrame();
 
@@ -23,11 +10,11 @@ void Application::DrawGUI(void)
 	//About
 	{
 		ImGui::SetNextWindowPos(ImVec2(1, 1), ImGuiSetCond_FirstUseEver);
-		ImGui::SetNextWindowSize(ImVec2(340, 280), ImGuiSetCond_FirstUseEver);
+		ImGui::SetNextWindowSize(ImVec2(340, 60), ImGuiSetCond_FirstUseEver);
 		String sAbout = m_pSystem->GetAppName() + " - About";
 		ImGui::Begin(sAbout.c_str(), (bool*)0, window_flags);
 		{
-			ImGui::Text("Programmer: \n"); 
+			ImGui::Text("Programmer: \n");
 			ImGui::TextColored(v4Color, m_sProgrammer.c_str());
 			ImGui::Text("FrameRate: %.2f [FPS] -> %.3f [ms/frame]\n",
 				ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
@@ -37,14 +24,6 @@ void Application::DrawGUI(void)
 			ImGui::Text("	 F2: Orthographic X\n");
 			ImGui::Text("	 F3: Orthographic Y\n");
 			ImGui::Text("	 F4: Orthographic Z\n");
-			ImGui::Text("\n");
-			ImGui::Text("	 F5: Cone\n");
-			ImGui::Text("	 F6: Cylinder\n");
-			ImGui::Text("	 F7: Tube\n");
-			ImGui::Text("	 F8: Sphere\n");
-			ImGui::Text("	 F9: Torus\n");
-			ImGui::Text("	F10: Cube\n");
-
 		}
 		ImGui::End();
 	}
@@ -328,10 +307,11 @@ void Application::NewFrame()
 	ImVec2(	width > 0 ? ((float)m_viewport[2] / width) : 0,
 	height > 0 ? ((float)m_viewport[3] / height) : 0);
 	*/
+
 	// Setup time step
-	double dDelta = m_pSystem->GetDeltaTime(gui.m_nClock);
-	io.DeltaTime = static_cast<float>(dDelta);
-	gui.m_dTimeTotal += dDelta;
+	float fDelta = m_pSystem->GetDeltaTime(gui.m_nClock);
+	io.DeltaTime = fDelta;
+	gui.m_dTimeTotal += fDelta;
 	
 	// Start the frame
 	ImGui::NewFrame();
@@ -371,7 +351,6 @@ void Application::InitIMGUI(void)
 
 	//Setup clock
 	gui.m_nClock = m_pSystem->GenClock();
-	m_pSystem->StartClock(gui.m_nClock);
 }
 void Application::ShutdownGUI(void)
 {

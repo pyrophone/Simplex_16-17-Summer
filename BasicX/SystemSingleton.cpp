@@ -72,7 +72,9 @@ void SystemSingleton::ReleaseInstance()
 void  SystemSingleton::Release(void)
 {
 	m_pFolder = nullptr;
-	m_lClock.clear();
+	m_clockList.clear();
+	m_deltaList.clear();
+	m_countdownList.clear();
 }
 void SystemSingleton::Init(void)
 {
@@ -80,25 +82,24 @@ void SystemSingleton::Init(void)
 
 	m_sAppName = GetProgramName();
 
-	m_nWindowX = 0;
-	m_nWindowY = 0;
 
 	m_bWindowFullscreen = false;
 	m_bWindowBorderless = false;
 
+	m_nWindowX = 0;
+	m_nWindowY = 0;
+
 	m_nWindowWidth = 1280;
 	m_nWindowHeight = 720;
+
 	m_sWindowName = "BasicX - Window";
 
-	m_dStartingTime = GetTickCount();
-	m_dLastFPS = GetTickCount();
-	m_uFrameCount = 0;
 	m_nFPS = 0;
 	m_uMaxFPS = 120;
 
-	m_dTimerStart = m_dStartingTime;
+	StartClock(0);
 
-	StartClock();
+	Update();
 }
 void SystemSingleton::SetMaxFrameRate(uint a_uMax) { m_uMaxFPS = a_uMax; }
 uint SystemSingleton::GetMaxFrameRate(void) { return m_uMaxFPS; }
@@ -244,9 +245,6 @@ uint SystemSingleton::GetWindowHeight(void) { return m_nWindowHeight; }
 void SystemSingleton::SetWindowName(String a_sWindowName) { m_sWindowName = a_sWindowName; }
 String SystemSingleton::GetWindowName(void) { return m_sWindowName; }
 
-void SystemSingleton::SetThreaded(bool a_bMultithreaded) { m_bMultithreaded = a_bMultithreaded; }
-bool SystemSingleton::GetThreaded(void) { return m_bMultithreaded; }
-
 bool SystemSingleton::GetUsingConsole(void) { return m_bConsoleWindow; }
 void SystemSingleton::SetUsingConsole(bool a_bUsing) { m_bConsoleWindow = a_bUsing; }
 
@@ -255,61 +253,72 @@ int SystemSingleton::GetFPS(void) { return m_nFPS; }
 
 void SystemSingleton::Update()
 {
-	// Get FPS
-	if ((GetTickCount() - m_dLastFPS) >= 1000)	// When a Second has passed...
+	static DWORD dLastTime = GetTickCount(); //Last time the time was called
+
+	static uint uFrameCount = 0; //Frames Passed
+
+								 // Get FPS
+	if ((GetTickCount() - dLastTime) >= 1000)	// When a Second has passed...
 	{
-		m_dLastFPS = GetTickCount();			// Refresh the value of frames
-		m_nFPS = m_uFrameCount;						// save the number of frames that occurred in this second
-		m_uFrameCount = 1;							// Reset the frames
-		return;
+		dLastTime = GetTickCount();	// Refresh the value of frames
+		m_nFPS = uFrameCount;		// save the number of frames that occurred in this second
+		uFrameCount = 0;			// Reset the frames
 	}
-	m_uFrameCount++;								// Increment the frame count
+	uFrameCount++;					// Increment the frame count
 	return;
 }
 void SystemSingleton::StartClock(uint a_nClock)
 {
-	while (m_lClock.size() < a_nClock + 1)
-		m_lClock.push_back(GetTickCount());
-	m_lClock[a_nClock] = GetTickCount();
+	while (m_clockList.size() < a_nClock + 1)
+	{
+		m_clockList.push_back(GetTickCount());
+		m_deltaList.push_back(GetTickCount());
+		m_countdownList.push_back(0.0f);
+		m_deltaList[m_clockList.size() - 1] =
+			m_clockList[m_clockList.size() - 1] = GetTickCount();
+	}
 }
-double SystemSingleton::GetDeltaTime(uint a_nClock)
+float SystemSingleton::GetDeltaTime(uint a_nClock)
 {
-	while (m_lClock.size() < a_nClock + 1)
-		m_lClock.push_back(GetTickCount());
+	StartClock(a_nClock);
+
 	DWORD dCurrentTime = GetTickCount();
-	double dTime = (dCurrentTime - m_lClock[a_nClock]) / 1000.0;
-	m_lClock[a_nClock] = dCurrentTime;
+	float dTime = (dCurrentTime - m_deltaList[a_nClock]) / 1000.0f;
+	m_deltaList[a_nClock] = dCurrentTime;
 
 	return dTime;
 }
+float SystemSingleton::GetTimeSinceStart(uint a_nClock)
+{
+	StartClock(a_nClock);
+
+	return (GetTickCount() - m_clockList[a_nClock]) / 1000.0f;
+}
 uint SystemSingleton::GenClock(void)
 {
-	uint nSize = m_lClock.size();
-	GetDeltaTime(nSize);
+	uint nSize = m_clockList.size();
+	StartClock(nSize);
 	return nSize;
 }
-bool SystemSingleton::CountDown(float a_fTime, bool a_bRepeat)
+void SystemSingleton::ResetClock(uint a_nClock)
 {
-	static bool bNew = true;
-	static bool bGoneOff = false;
-	static DWORD dTime = 0;
-	static DWORD dStartTime = 0;
-	if (bNew)
-	{
-		dStartTime = GetTickCount();
-		dTime = static_cast<DWORD>(a_fTime * 1000);
-		bNew = false;
-	}
-	bool bDone = false;
-	DWORD dTimeDifference = GetTickCount() - dStartTime;
-	if (dTimeDifference > dTime)
-	{
-		bDone = true;
-		if (a_bRepeat)
-		{
-			bNew = true;
-		}
-	}
+	if (a_nClock >= m_clockList.size())
+		return;
+	m_deltaList[a_nClock] = m_clockList[a_nClock] = GetTickCount();
+}
+void SystemSingleton::StartTimerOnClock(float a_fTime, uint a_nClock)
+{
+	StartClock(a_nClock);
+	ResetClock(a_nClock);
+	m_countdownList[a_nClock] = a_fTime;
+}
+bool SystemSingleton::IsTimerDone(uint a_nClock)
+{
+	//check the clock even exists
+	if (a_nClock >= m_clockList.size())
+		return true;
 
-	return bDone;
+	float fTime = m_countdownList[a_nClock];
+
+	return m_countdownList[a_nClock] <= GetTimeSinceStart(a_nClock);
 }

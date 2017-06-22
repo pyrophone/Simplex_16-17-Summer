@@ -51,10 +51,10 @@ void Application::Display(void)
 	*/
 
 	//Sol2
-	//Get the time
-	uint uClock = m_pSystem->GenClock();
-	static double dTime = m_pSystem->GetDeltaTime();
-	dTime += m_pSystem->GetDeltaTime();
+	//Get a timer
+	static float fTimer = 0;	//store the new timer
+	static uint uClock = m_pSystem->GenClock(); //generate a new clock for that timer
+	fTimer += m_pSystem->GetDeltaTime(uClock); //get the delta time for that timer
 
 	//Calculate list of Stops
 	static std::vector<vector3> v3Stop;
@@ -75,9 +75,9 @@ void Application::Display(void)
 	v3End = v3Stop[(route + 1) % v3Stop.size()]; //end at route +1 (if overboard will restart from 0)
 	
 	//get the percentace
-	double fTimeBetweenStops = 2.0;//in seconds
+	float fTimeBetweenStops = 2.0;//in seconds
 	//map the value to be between 0.0 and 1.0
-	float fPercentage = static_cast<float>(MapValue(dTime, 0.0, fTimeBetweenStops, 0.0, 1.0));
+	float fPercentage = MapValue(fTimer, 0.0f, fTimeBetweenStops, 0.0f, 1.0f);
 
 	//calculate the current position
 	vector3 v3CurrentPos = glm::lerp(v3Start, v3End, fPercentage);
@@ -87,7 +87,7 @@ void Application::Display(void)
 	if (fPercentage >= 1.0f)
 	{
 		route++; //go to the next route
-		dTime = m_pSystem->GetDeltaTime();//restart the clock
+		fTimer = m_pSystem->GetDeltaTime(uClock);//restart the clock
 		route %= v3Stop.size();//make sure we are within boundries
 	}
 		

@@ -316,10 +316,7 @@ namespace BasicX
 			//Generate a new render target and set back the render target to be the window
 			m_pGLSystem->GenerateRenderTarget(m_nFrameBuffer, m_nDepthBuffer, m_nDawingTexture);
 			m_pMeshMngr->SetRenderTarget();
-
-			//Start the clock
-			m_pSystem->StartClock();
-
+			
 			m_selection = std::pair<int, int>(-1, -1);
 
 			printf("\n");

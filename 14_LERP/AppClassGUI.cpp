@@ -11,10 +11,6 @@ void Application::DrawGUI(void)
 	m_pMeshMngr->PrintLine(m_pSystem->GetAppName(), C_YELLOW);
 	
 	//m_pMeshMngr->Print("						");
-	m_pMeshMngr->Print("RenderCalls: ");//Add a line on top
-	m_pMeshMngr->PrintLine(std::to_string(m_uRenderCallCount), C_YELLOW);
-
-	//m_pMeshMngr->Print("						");
 	m_pMeshMngr->Print("FPS:");
 	m_pMeshMngr->Print(std::to_string(m_pSystem->GetFPS()), C_RED);
 #pragma endregion
@@ -324,10 +320,11 @@ void Application::NewFrame()
 	ImVec2(	width > 0 ? ((float)m_viewport[2] / width) : 0,
 	height > 0 ? ((float)m_viewport[3] / height) : 0);
 	*/
+
 	// Setup time step
-	double dDelta = m_pSystem->GetDeltaTime(gui.m_nClock);
-	io.DeltaTime = static_cast<float>(dDelta);
-	gui.m_dTimeTotal += dDelta;
+	float fDelta = m_pSystem->GetDeltaTime(gui.m_nClock);
+	io.DeltaTime = fDelta;
+	gui.m_dTimeTotal += fDelta;
 	
 	// Start the frame
 	ImGui::NewFrame();
@@ -367,7 +364,6 @@ void Application::InitIMGUI(void)
 
 	//Setup clock
 	gui.m_nClock = m_pSystem->GenClock();
-	m_pSystem->StartClock(gui.m_nClock);
 }
 void Application::ShutdownGUI(void)
 {
