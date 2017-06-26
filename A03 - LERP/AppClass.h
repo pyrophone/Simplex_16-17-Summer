@@ -44,6 +44,9 @@ private:
 	CameraManager* m_pCameraMngr = nullptr; //Singleton for the camera manager
 	ControllerInput* m_pController[8]; //Controller
 	uint m_uActCont = 0; //Active Controller of the Application
+	std::vector<GLfloat> oAngleAmount; //Vector of the basic angles for each ring
+	std::vector<GLuint> counter; //Counters for each ring
+	std::vector<std::vector<vector3>> stops; //vector of vectors for the stops of each ring
 
 public:
 #pragma region Constructor / Run / Destructor
