@@ -2,6 +2,7 @@
 using namespace Simplex;
 void Application::InitVariables(void)
 {
+	m_sProgrammer = "Giovanni Aleman - ga9494@rit.edu";
 	//Alberto needed this at this position for software recording.
 	m_pWindow->setPosition(sf::Vector2i(710, 0));
 
@@ -54,21 +55,33 @@ void Application::Display(void)
 		break;
 	case 2:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(false); //Make cam ortho
 		break;
 	case 3:
-		m_pCamera->ResetCamera();
+		m_pCamera->ResetCamera(); //Tilted side view
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPositionTargetAndUp(vector3(30.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, -1.0f));
 		break;
 	case 4:
-		m_pCamera->ResetCamera();
+		m_pCamera->ResetCamera(); //Behind view
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPositionTargetAndUp(vector3(0.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, 1.0f, 0.0f));
 		break;
 	case 5:
-		m_pCamera->ResetCamera();
+		m_pCamera->ResetCamera(); //Behind view with further near clip
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPositionTargetAndUp(vector3(0.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, 1.0f, 0.0f));
+		m_pCamera->SetNearFar(vector2(5.0f, 100.0f));
 		break;
 	case 6:
-		m_pCamera->ResetCamera();
+		m_pCamera->SetPerspective(true); //Behind view closer far clip
+		m_pCamera->SetPositionTargetAndUp(vector3(0.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, 1.0f, 0.0f));
+		m_pCamera->SetNearFar(vector2(0.1f, 10.0f));
 		break;
 	case 7:
-		m_pCamera->ResetCamera();
+		m_pCamera->ResetCamera(); //Upside-down front view
+		m_pCamera->SetPerspective(true);
+		m_pCamera->SetPositionTargetAndUp(vector3(0.0f, 0.0f, 10.0f), vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, -1.0f, 0.0f));
 		break;
 	}
 
