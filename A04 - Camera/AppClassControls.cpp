@@ -370,6 +370,11 @@ void Application::CameraRotation(float a_fSpeed)
 	}
 	//Change the Yaw and the Pitch of the camera
 	SetCursorPos(CenterX, CenterY);//Position the mouse in the center
+
+	//Set the quaterion rotation by multiplying pitch * camsCurrentRot * yaw
+	m_pCamera->SetRot(glm::angleAxis(fAngleY, AXIS_Y) * m_pCamera->GetRot() * glm::angleAxis(fAngleX, AXIS_Z));
+	m_pCamera->updateTransform(); //Update the transform
+	m_pCamera->SetTarget(m_pCamera->GetPosition() + m_pCamera->Front()); //Set the new target
 }
 //Keyboard
 void Application::ProcessKeyboard(void)
@@ -385,6 +390,39 @@ void Application::ProcessKeyboard(void)
 
 	if (fMultiplier)
 		fSpeed *= 5.0f;
+
+	/*Key press actiios*/
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A)) //Left
+	{
+		//Set the position to position + right * speed, update the transform, set the target to position + front
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + m_pCamera->Right() * fSpeed);
+		m_pCamera->updateTransform();
+		m_pCamera->SetTarget(m_pCamera->GetPosition() + m_pCamera->Front() * fSpeed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) //Right
+	{
+		//Set the position to position - right * speed, update the transform, set the target to position + front
+		m_pCamera->SetPosition(m_pCamera->GetPosition() - m_pCamera->Right() * fSpeed);
+		m_pCamera->updateTransform();
+		m_pCamera->SetTarget(m_pCamera->GetPosition() + m_pCamera->Front() * fSpeed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W)) //Forward
+	{
+		//Set the position to position + front * speed, update the transform, set the target to position + front
+		m_pCamera->SetPosition(m_pCamera->GetPosition() + m_pCamera->Front() * fSpeed);
+		m_pCamera->updateTransform();
+		m_pCamera->SetTarget(m_pCamera->GetPosition() + m_pCamera->Front() * fSpeed);
+	}
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S)) //Back
+	{
+		//Set the position to position - front * speed, update the transform, set the target to position + front
+		m_pCamera->SetPosition(m_pCamera->GetPosition() - m_pCamera->Front() * fSpeed);
+		m_pCamera->updateTransform();
+		m_pCamera->SetTarget(m_pCamera->GetPosition() + m_pCamera->Front() * fSpeed);
+	}
 #pragma endregion
 }
 //Joystick

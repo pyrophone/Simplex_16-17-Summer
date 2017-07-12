@@ -28,6 +28,12 @@ class MyCamera
 
 	matrix4 m_m4View; //View matrix
 	matrix4 m_m4Projection; //Projection Matrix
+
+	matrix4 transform; //the transformation matrix
+	glm::vec3 front; //The front vector
+	glm::vec3 right; //The right vector
+	glm::quat camRot; //The camera's rotation quaternion
+
 public:
 	/*
 	USAGE: Constructor
@@ -181,6 +187,30 @@ public:
 	*/
 	matrix4 GetViewMatrix(void);
 
+	/**Gets the front vector
+	 *
+	 * @return (glm::vec3) The front vector
+	*/
+	glm::vec3 Front(void);
+
+	/**Gets the right vector
+	 *
+	 * @return (glm::vec3) The right  vector
+	 */
+	glm::vec3 Right(void);
+
+	/**Gets the camera's current rotation
+	 *
+	 * @return (glm::quat) the rotation
+	 */
+	glm::quat GetRot();
+
+	/**Sets the camera's current rotation quaternion
+	*
+	* @param (glm::quat) a_q - The new rotation quaternion
+	*/
+	void SetRot(glm::quat a_q);
+
 	/*
 	USAGE: Resets the camera to default values
 	ARGUMENTS: ---
@@ -211,6 +241,9 @@ public:
 	OUTPUT: ---
 	*/
 	void CalculateProjectionMatrix(void);
+
+	/**Updates the 4x4 transform matrix */
+	void updateTransform(void);
 };
 
 } //namespace Simplex
