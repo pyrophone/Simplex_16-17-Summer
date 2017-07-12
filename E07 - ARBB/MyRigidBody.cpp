@@ -85,8 +85,38 @@ void MyRigidBody::SetModelMatrix(matrix4 a_m4ModelMatrix)
 	m_m4ToWorld = a_m4ModelMatrix;
 	
 	//your code goes here---------------------
-	m_v3MinG = m_v3MinL;
-	m_v3MaxG = m_v3MaxL;
+	m_v3MinG = glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL, 1)); //Min in world using transform
+	m_v3MaxG = glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL, 1)); //Max in world using transform
+
+	//The points to check against
+	std::vector<vector3> vecs = { glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL.x, m_v3MinL.y, m_v3MinL.z, 1)),
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL.x, m_v3MaxL.y, m_v3MinL.z, 1)),
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL.x, m_v3MinL.y, m_v3MaxL.z, 1)),
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z, 1)),
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z, 1)),
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z, 1)), 
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL, 1)),
+								  glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL, 1)) };
+
+	//Loop through the vectors to set the new points for the max and min
+	for (GLuint i = 0; i < vecs.size(); i++)
+	{
+		if (m_v3MaxG.x < vecs[i].x)
+			m_v3MaxG.x = vecs[i].x;
+		else if (m_v3MinG.x > vecs[i].x)
+			m_v3MinG.x = vecs[i].x;
+
+		if (m_v3MaxG.y < vecs[i].y)
+			m_v3MaxG.y = vecs[i].y;
+		else if (m_v3MinG.y > vecs[i].y)
+			m_v3MinG.y = vecs[i].y;
+
+		if (m_v3MaxG.z < vecs[i].z)
+			m_v3MaxG.z = vecs[i].z;
+		else if (m_v3MinG.z > vecs[i].z)
+			m_v3MinG.z = vecs[i].z;
+	}
+
 	//----------------------------------------
 
 	//we calculate the distance between min and max vectors
