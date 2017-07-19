@@ -286,6 +286,140 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	Simplex that might help you [eSATResults] feel free to use it.
 	(eSATResults::SAT_NONE has a value of 0)
 	*/
+	
+	//A Points to calculate the axes
+	glm::vec3 APoints[5] = { glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL, 1)),
+							 glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL.x, m_v3MaxL.y, m_v3MinL.z, 1)),
+							 glm::vec3(m_m4ToWorld * glm::vec4(m_v3MaxL.x, m_v3MinL.y, m_v3MaxL.z, 1)),
+							 glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL.x, m_v3MaxL.y, m_v3MaxL.z, 1)),
+							 glm::vec3(m_m4ToWorld * glm::vec4(m_v3MinL, 1)) };
+	//B Points to calculate the axes
+	glm::vec3 BPoints[5] = { glm::vec3(a_pOther->m_m4ToWorld * glm::vec4(a_pOther->m_v3MaxL, 1)),
+							 glm::vec3(a_pOther->m_m4ToWorld * glm::vec4(a_pOther->m_v3MaxL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MinL.z, 1)),
+							 glm::vec3(a_pOther->m_m4ToWorld * glm::vec4(a_pOther->m_v3MaxL.x, a_pOther->m_v3MinL.y, a_pOther->m_v3MaxL.z, 1)),
+							 glm::vec3(a_pOther->m_m4ToWorld * glm::vec4(a_pOther->m_v3MinL.x, a_pOther->m_v3MaxL.y, a_pOther->m_v3MaxL.z, 1)),
+							 glm::vec3(a_pOther->m_m4ToWorld * glm::vec4(a_pOther->m_v3MinL, 1)) };
+
+	//A axes
+	glm::vec3 AAxis[3] = { glm::normalize(APoints[0] - APoints[3]),   //X Axis
+						   glm::normalize(APoints[0] - APoints[2]),   //Y Axis
+						   glm::normalize(APoints[0] - APoints[1]) }; //Z Axis
+	//B axes
+	glm::vec3 BAxis[3] = { glm::normalize(BPoints[0] - BPoints[3]),   //X Axis
+						   glm::normalize(BPoints[0] - BPoints[2]),   //Y Axis
+						   glm::normalize(BPoints[0] - BPoints[1]) }; //Z Axis
+
+	//Calculate the global centers and the distance between them
+	glm::vec3 ACenter = glm::vec3(m_m4ToWorld * glm::vec4(m_v3Center, 1.0f));
+	glm::vec3 BCenter = glm::vec3(a_pOther->m_m4ToWorld * glm::vec4(a_pOther->m_v3Center, 1.0f));
+	glm::vec3 trans = BCenter - ACenter;
+
+	//Help matricies
+	glm::mat3 R;
+	glm::mat3 AbsR;
+
+	//Fill the R matrix with the dot product of each axis
+	for (GLuint i = 0; i < 3; i++)
+	{
+		for (GLuint j = 0; j < 3; j++)
+		{
+			R[i][j] = glm::dot(AAxis[i], BAxis[j]);
+		}
+	}
+
+	GLfloat epsilon = 0.25f;
+
+	//Get the absolute value of each of the dots
+	for (GLuint i = 0; i < 3; i++)
+	{
+		for (GLuint j = 0; j < 3; j++)
+		{
+			AbsR[i][j] = glm::abs(R[i][j]);
+		}
+	}
+
+	//Floats to hold the a and b distance 
+	GLfloat ra;
+	GLfloat rb;
+
+	//Axis cross product
+	glm::vec3 AXcBX = glm::cross(AAxis[0], BAxis[0]);
+	glm::vec3 AXcBY = glm::cross(AAxis[0], BAxis[1]);
+	glm::vec3 AXcBZ = glm::cross(AAxis[0], BAxis[2]);
+
+	glm::vec3 AYcBX = glm::cross(AAxis[1], BAxis[0]);
+	glm::vec3 AYcBY = glm::cross(AAxis[1], BAxis[1]);
+	glm::vec3 AYcBZ = glm::cross(AAxis[1], BAxis[2]);
+
+	glm::vec3 AZcBX = glm::cross(AAxis[2], BAxis[0]);
+	glm::vec3 AZcBY = glm::cross(AAxis[2], BAxis[1]);
+	glm::vec3 AZcBZ = glm::cross(AAxis[2], BAxis[2]);
+
+	//A X, Y, and Z axes
+	for (GLuint i = 0; i < 3; i++)
+	{
+		ra = m_v3HalfWidth[i];
+		rb = a_pOther->m_v3HalfWidth.x * AbsR[i][0] + a_pOther->m_v3HalfWidth.y * AbsR[i][1] + a_pOther->m_v3HalfWidth.z * AbsR[i][2];
+		if (glm::abs(glm::dot(trans, AAxis[i])) > ra + rb)
+			return i + 1;
+	}
+
+	//B X, Y, and Z axes
+	for (GLuint i = 0; i < 3; i++)
+	{
+		ra = m_v3HalfWidth.x * AbsR[0][i] + m_v3HalfWidth.y * AbsR[1][i] + m_v3HalfWidth.z * AbsR[2][i];
+		rb = a_pOther->m_v3HalfWidth[i];
+		if (glm::abs(glm::dot(trans, BAxis[i])) > ra + rb)
+			return i + 4;
+	}
+
+	//AXcBX
+	ra = m_v3HalfWidth.y * AbsR[2][0] + m_v3HalfWidth.z * AbsR[1][0];
+	rb = a_pOther->m_v3HalfWidth.y * AbsR[0][2] + a_pOther->m_v3HalfWidth.z * AbsR[0][1];
+	if (glm::abs(glm::dot(trans, AXcBX)) > ra + rb)
+		return eSATResults::SAT_AXxBX;
+	//AXcBY
+	ra = m_v3HalfWidth.y * AbsR[2][1] + m_v3HalfWidth.z * AbsR[1][1];
+	rb = a_pOther->m_v3HalfWidth.x * AbsR[0][2] + a_pOther->m_v3HalfWidth.z * AbsR[0][0];
+	if (glm::abs(glm::dot(trans, AXcBY)) > ra + rb)
+		return eSATResults::SAT_AXxBY;
+	//AXcBZ
+	ra = m_v3HalfWidth.y * AbsR[2][2] + m_v3HalfWidth.z * AbsR[1][2];
+	rb = a_pOther->m_v3HalfWidth.x * AbsR[0][1] + a_pOther->m_v3HalfWidth.y * AbsR[0][0];
+	if (glm::abs(glm::dot(trans, AXcBY)) > ra + rb)
+		return eSATResults::SAT_AXxBZ;
+
+	//AYcBX
+	ra = m_v3HalfWidth.x * AbsR[2][0] + m_v3HalfWidth.z * AbsR[0][0];
+	rb = a_pOther->m_v3HalfWidth.y * AbsR[1][2] + a_pOther->m_v3HalfWidth.z * AbsR[1][1];
+	if (glm::abs(glm::dot(trans, AYcBX)) > ra + rb)
+		return eSATResults::SAT_AYxBX;
+	//AYcBY
+	ra = m_v3HalfWidth.x * AbsR[2][1] + m_v3HalfWidth.z * AbsR[0][1];
+	rb = a_pOther->m_v3HalfWidth.x * AbsR[1][2] + a_pOther->m_v3HalfWidth.z * AbsR[1][0];
+	if (glm::abs(glm::dot(trans, AYcBY)) > ra + rb)
+		return eSATResults::SAT_AYxBY;
+	//AYcBZ
+	ra = m_v3HalfWidth.x * AbsR[2][2] + m_v3HalfWidth.z * AbsR[0][2];
+	rb = a_pOther->m_v3HalfWidth.x * AbsR[1][1] + a_pOther->m_v3HalfWidth.y * AbsR[1][0];
+	if (glm::abs(glm::dot(trans, AYcBZ)) > ra + rb)
+		return eSATResults::SAT_AYxBZ;
+
+	//AZcBX
+	ra = m_v3HalfWidth.x * AbsR[1][0] + m_v3HalfWidth.y * AbsR[0][0];
+	rb = a_pOther->m_v3HalfWidth.y * AbsR[2][2] + a_pOther->m_v3HalfWidth.z * AbsR[2][1];
+	if (glm::abs(glm::dot(trans, AZcBX)) > ra + rb)
+		return eSATResults::SAT_AZxBX;
+	//AZcBY
+	ra = m_v3HalfWidth.x * AbsR[1][1] + m_v3HalfWidth.y * AbsR[0][1];
+	rb = a_pOther->m_v3HalfWidth.x * AbsR[2][2] + a_pOther->m_v3HalfWidth.z * AbsR[2][0];
+	if (glm::abs(glm::dot(trans, AZcBY)) > ra + rb)
+		return eSATResults::SAT_AZxBY;
+	//AZcBZ
+	ra = m_v3HalfWidth.x * AbsR[1][2] + m_v3HalfWidth.y * AbsR[0][2];
+	rb = a_pOther->m_v3HalfWidth.x * AbsR[2][1] + a_pOther->m_v3HalfWidth.y * AbsR[2][0];
+	if (glm::abs(glm::dot(trans, AZcBZ)) > ra + rb)
+		return eSATResults::SAT_AZxBZ;
 
 	//there is no axis test that separates this two objects
 	return eSATResults::SAT_NONE;
