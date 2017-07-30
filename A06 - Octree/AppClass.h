@@ -12,6 +12,8 @@ Date: 2017/06
 
 #include "MyEntityManager.h"
 
+#include "MyOctant.h"
+
 namespace Simplex
 {
 	//Adding Application to the Simplex namespace
@@ -58,6 +60,9 @@ private:
 	sf::SoundBuffer m_soundBuffer; //buffer to play sound from
 	sf::Sound m_sound; //sound effect
 	sf::Music m_soundBGM; //background music
+
+	MyOctant* m_pRoot = nullptr;
+	uint m_uOctantLevelsPrev = 0; //Holds the prev octant level
 
 public:
 #pragma region Constructor / Run / Destructor

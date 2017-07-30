@@ -2,6 +2,7 @@
 using namespace Simplex;
 void Application::InitVariables(void)
 {
+	m_sProgrammer = "Giovanni Aleman - ga9494@rit.edu";
 	//Set the position and target of the camera
 	m_pCameraMngr->SetPositionTargetAndUp(
 		vector3(0.0f, 0.0f, 100.0f), //Position
@@ -31,6 +32,7 @@ void Application::InitVariables(void)
 	}
 	m_uOctantLevels = 1;
 	m_pEntityMngr->Update();
+	m_pRoot = new MyOctant(1, glm::vec3(70, 70, 70));
 }
 void Application::Update(void)
 {
@@ -46,6 +48,96 @@ void Application::Update(void)
 	//Update Entity Manager
 	m_pEntityMngr->Update();
 
+	static std::vector<Node*> tmp; //tmp vector of nodes
+
+	//If the prev octant level and the current are different, update the leaf nodes;
+	if (m_uOctantLevelsPrev != m_uOctantLevels)
+		tmp = m_pRoot->getNodeLeafs();
+
+	//Uses all the node in tmp
+	if (m_uOctantID > m_pRoot->getOctantCount())
+	{
+		for (GLuint i = 0; i < tmp.size(); i++)
+		{
+			m_pMeshMngr->AddWireCubeToRenderList(tmp[i]->getTransMat(), C_YELLOW); //Render each node
+
+			//If the octant levels are the same, skip this
+			if (m_uOctantLevelsPrev != m_uOctantLevels)
+			{
+				//Check if each entity is in the current node, and if it is, add that dimension
+				for (GLuint j = 0; j < m_pEntityMngr->GetEntityCount(); j++)
+				{
+					static glm::vec3 octMax;
+					static glm::vec3 octMin;
+					static glm::vec3 entMax;
+					static glm::vec3 entMin;
+
+					//temp vec3's to clean up if statements
+					octMax =  tmp[i]->getSize() + tmp[i]->getCenter() * 2.0f;
+					octMin = -tmp[i]->getSize() + tmp[i]->getCenter() * 2.0f;
+					entMax = m_pEntityMngr->GetRigidBody(j)->GetMaxGlobal();
+					entMin = m_pEntityMngr->GetRigidBody(j)->GetMinGlobal();
+
+					//Check x, y, and z to see if the entity is in the node
+					if (entMax.x < octMin.x)
+						continue;
+					if (entMin.x > octMax.x)
+						continue;
+
+					if (entMax.y < octMin.y)
+						continue;
+					if (entMin.y > octMax.y)
+						continue;
+
+					if (entMax.z < octMin.z)
+						continue;
+					if (entMin.z > octMax.z)
+						continue;
+
+					//Adds the dimension to the entity
+					m_pEntityMngr->AddDimension(j, i);
+				}
+			}
+		}
+		m_uOctantLevelsPrev = m_uOctantLevels; //Update the octant levels
+	}
+
+	//Uses the a specific node in tmp
+	else
+	{
+		//Render the specific node
+		m_pMeshMngr->AddWireCubeToRenderList(tmp[m_uOctantID]->getTransMat(), C_YELLOW);
+		
+		//Check if each entity is in the current node, and if it is, add that dimension
+		for (GLuint i = 0; i < m_pEntityMngr->GetEntityCount(); i++)
+		{
+			//temp vec3's to clean up if statements
+			glm::vec3 octMax = tmp[m_uOctantID]->getSize() + tmp[m_uOctantID]->getCenter() * 2.0f;
+			glm::vec3 octMin = -tmp[m_uOctantID]->getSize() + tmp[m_uOctantID]->getCenter() * 2.0f;
+			glm::vec3 entMax = m_pEntityMngr->GetRigidBody(i)->GetMaxGlobal();
+			glm::vec3 entMin = m_pEntityMngr->GetRigidBody(i)->GetMinGlobal();
+
+			//Check x, y, and z to see if the entity is in the node
+			if (entMax.x < octMin.x)
+				continue;
+			if (entMin.x > octMax.x)
+				continue;
+
+			if (entMax.y < octMin.y)
+				continue;
+			if (entMin.y > octMax.y)
+				continue;
+
+			if (entMax.z < octMin.z)
+				continue;
+			if (entMin.z > octMax.z)
+				continue;
+
+			//Adds the dimension to the entity
+			m_pEntityMngr->AddDimension(i, m_uOctantID);
+		}
+	}
+
 	//Add objects to render list
 	m_pEntityMngr->AddEntityToRenderList(-1, true);
 }
@@ -53,9 +145,6 @@ void Application::Display(void)
 {
 	// Clear the screen
 	ClearScreen();
-
-	//display octree
-	//m_pRoot->Display();
 	
 	// draw a skybox
 	m_pMeshMngr->AddSkyboxToRenderList();
